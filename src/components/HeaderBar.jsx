@@ -187,6 +187,15 @@ export default function HeaderBar({
           <TextIcon />
         </button>
 
+        <button
+          onClick={toggleAutoScroll}
+          className={`toggle-button ${autoScroll ? "active" : ""}`}
+          disabled={isLoadingFolder}
+          title="Toggle Auto Scroll"
+        >
+          <TextIcon />
+        </button>
+
         <div style={dividerStyle}>
           <div className="video-limit-control" title="Limit rendered VideoCards">
             <FilmIcon />
