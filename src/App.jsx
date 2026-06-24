@@ -1156,6 +1156,76 @@ function App() {
     });
   }, [showFilenames, recursiveMode, renderLimitStep, zoomLevel]);
 
+  const toggleAutoScroll = useCallback(() => {
+    const autoScroll = (() => {
+
+function getLineHeight(element) {
+    const style = window.getComputedStyle(element)
+    let lineHeight = style.getPropertyValue('line-height')
+    let fontSize = parseInt(style.getPropertyValue('font-size'), 10)
+
+    if (!isNaN(lineHeight) && lineHeight !== 'normal') {
+        if (lineHeight.endsWith('px')) {
+                lineHeight = parseInt(lineHeight, 10)
+        } else if (lineHeight.endsWith('em')) {
+                lineHeight = fontSize * parseFloat(lineHeight)
+        } else if (lineHeight.endsWith('rem')) {
+                lineHeight = parseFloat(lineHeight) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+        } else {
+                lineHeight = fontSize * parseFloat(lineHeight)
+        }
+    } else {
+        lineHeight = fontSize * 1.2
+    }
+
+    return lineHeight
+}
+
+function findFirstVisibleChild(element) {
+    let children = element.children
+    for (let child of children) {
+            if (child.offsetTop + child.offsetHeight > element.scrollTop
+                        && child.offsetTop < element.scrollTop + element.clientHeight) {
+                    return child
+            }
+    }
+    return null
+}
+
+function scroller(element, delay) {
+    let autoScroll = element
+    let iScrollHeight = autoScroll.scrollHeight
+    let iScrollTop = autoScroll.scrollTop
+    let iHeight = autoScroll.clientHeight
+    let timerId = setInterval(() => {
+        let firstVisibleChild = findFirstVisibleChild(autoScroll)
+        if (firstVisibleChild) {
+            let lineHeight = getLineHeight(firstVisibleChild)
+            if (iScrollTop + iHeight < iScrollHeight) {
+                iScrollTop += lineHeight
+                autoScroll.scrollTo(0, iScrollTop)
+            } else {
+                iScrollTop = 0
+                autoScroll.scrollTo(0, iScrollTop)
+            }
+        } else {
+            clearInterval(timerId)
+        }
+    }, delay)
+    autoScroll.stopScroller = () => {
+        clearInterval(timerId)
+    }
+}
+
+return scroller
+
+})()
+
+const grid = document.getElementsByClassName('content-region__viewport')[0];
+
+autoScroll(grid, 150);
+  });
+
   const handleRenderLimitStepChange = useCallback(
     (step) => {
       const clamped = clampRenderLimitStep(step);
